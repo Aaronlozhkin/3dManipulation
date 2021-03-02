@@ -6,35 +6,32 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 import time
 
-def orthogonalProjectionMatrix(a, b, c):
-    V1 = [1, 0, (-a/c)]
-    vector1 = np.array(V1)
-    VP = [a, b, c]
-    vPerp = np.array(VP)
-    vector2 = np.cross(vector1, vPerp)
-    C = np.column_stack((vector1, vector2))
-    ProjectionMatrix = np.dot(np.dot(C, np.linalg.inv(np.dot(np.transpose(C), C))), np.transpose(C))
+def orthogonalProjectionMatrix(a, b, c): #Constructs the orthogonal projection matrix for a plane with equation ax + by + cz = 0
+    vector1 = np.array([1, 0, (-a/c)])          #Creates a vector on the plane
+    vectorPerp = np.array([a, b, c])            #Creates a vector orthogonal to the plane
+    vector2 = np.cross(vector1, vectorPerp)     #Crosses these two vectors to get a vector orhtogonal to both and on the plane
+    orthonormalBasis = np.column_stack((vector1, vector2))
+    projectionMatrix = np.dot(np.dot(orthonormalBasis, np.linalg.inv(np.dot(np.transpose(orthonormalBasis), orthonormalBasis))), np.transpose(orthonormalBasis))
     xx, yy = np.meshgrid(range(10), range(10))
-    z = (-vPerp[0] * xx - vPerp[1] * yy) * 1. / vPerp[2]
-    ax.plot_surface(xx, yy, z, alpha=0.2)
-    return ProjectionMatrix
+    zz = (-vectorPerp[0] * xx - vectorPerp[1] * yy) * 1. / vectorPerp[2]
+    axis.plot_surface(xx, yy, zz, alpha=0.2)      #Plots the plane
+    return projectionMatrix
 
-def z_function(x,y):
+def zFunction(x, y):                            #creates a function f(x, y) = z
     return np.sqrt(x**2 + y**2)
 
-x = np.linspace(-5,5,100)
-y = np.linspace(-5,5,100)
+x = np.linspace(-5, 5, 100)
+y = np.linspace(-5, 5, 100)
+z = zFunction(x,y)
 
-z = z_function(x,y)
+lineArray = np.stack((x, y, z))             #Creates a 3xn vector representing the values of f(x,y)
 
-arr = np.stack((x, y, z))
+axis = plt.axes(projection="3d")
 
-ax = plt.axes(projection="3d")
+projectionMatrix = orthogonalProjectionMatrix(3, -2, 4)
 
-PW = orthogonalProjectionMatrix(3, -2, 4)
+graph = np.dot(projectionMatrix, lineArray)
 
-graph = np.dot(PW, arr)
-
-ax.plot3D(arr[0,:], arr[1,:], arr[2,:])
-ax.plot3D(graph[0,:], graph[1,:], graph[2,:])
+axis.plot3D(lineArray[0,:], lineArray[1,:], lineArray[2,:])
+axis.plot3D(graph[0,:], graph[1,:], graph[2,:])
 plt.show()
