@@ -1,37 +1,42 @@
-#Developed by Aaron Lozhkin
-#2/20/21 - 2D Projection of Vector on Plane
+# Developed by Aaron Lozhkin
+# 2/20/21 - 2D Projection of Vector on Plane
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
-import numpy as np
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
-def orthogonalProjectionMatrix(a, b, c): #Constructs the orthogonal projection matrix for a plane with equation ax + by + cz = 0
-    vector1 = np.array([1, 0, (-a/c)])          #Creates a vector on the plane
-    vectorPerp = np.array([a, b, c])            #Creates a vector orthogonal to the plane
-    vector2 = np.cross(vector1, vectorPerp)     #Crosses these two vectors to get a vector orhtogonal to both and on the plane
-    orthonormalBasis = np.column_stack((vector1, vector2))
-    projectionMatrix = np.dot(np.dot(orthonormalBasis, np.linalg.inv(np.dot(np.transpose(orthonormalBasis), orthonormalBasis))), np.transpose(orthonormalBasis))
-    xx, yy = np.meshgrid(range(10), range(10))
-    zz = (-vectorPerp[0] * xx - vectorPerp[1] * yy) * 1. / vectorPerp[2]
-    axis.plot_surface(xx, yy, zz, alpha=0.2)      #Plots the plane
-    return projectionMatrix
+def orthogonal_projection_matrix(a, b, c):
+    """Return the orthogonal projection matrix for a plane with equation ax + by + cz = 0"""
+    vector1 = np.array([1, 0, (-a / c)])  # Creates a vector on the plane
+    vector_perp = np.array([a, b, c])  # Creates a vector orthogonal to the plane
+    vector2 = np.cross(vector1,
+                       vector_perp)  # Crosses these two vectors to get a vector orhtogonal to both and on the plane
+    orthonormal_basis = np.column_stack((vector1, vector2))
+    projection_matrix = np.dot(
+        np.dot(orthonormal_basis, np.linalg.inv(
+            np.dot(np.transpose(orthonormal_basis), orthonormal_basis))),
+            np.transpose(orthonormal_basis))
+    plane_x, plane_y = np.meshgrid(range(10), range(10))
+    plane_z = (-vector_perp[0] * plane_x - vector_perp[1] * plane_y) * 1. / vector_perp[2]
+    AXIS.plot_surface(plane_x, plane_y, plane_z, alpha=0.2)  # Plots the plane
+    return projection_matrix
 
-def zFunction(x, y):                            #creates a function f(x, y) = z
-    return np.sqrt(x**2 + y**2)
 
-x = np.linspace(-5, 5, 100)
-y = np.linspace(-5, 5, 100)
-z = zFunction(x,y)
+def z_function(x, y):
+    """Return a function f(x, y) = z"""
+    return np.sqrt(x ** 2 + y ** 2)
 
-lineArray = np.stack((x, y, z))             #Creates a 3xn vector representing the values of f(x,y)
 
-axis = plt.axes(projection="3d")
+X = np.linspace(-5, 5, 100)
+Y = np.linspace(-5, 5, 100)
+Z = z_function(X, Y)
+LINEARRAY = np.stack((X, Y, Z))  # Creates a 3xn vector representing the values of f(x,y)
 
-projectionMatrix = orthogonalProjectionMatrix(3, -2, 4)
+AXIS = plt.axes(projection="3d")
 
-graph = np.dot(projectionMatrix, lineArray)
+PROJECTIONMATRIX = orthogonal_projection_matrix(3, -2, 4)
+PROJECTEDVECTOR = np.dot(PROJECTIONMATRIX, LINEARRAY)
 
-axis.plot3D(lineArray[0,:], lineArray[1,:], lineArray[2,:])
-axis.plot3D(graph[0,:], graph[1,:], graph[2,:])
+AXIS.plot3D(LINEARRAY[0, :], LINEARRAY[1, :], LINEARRAY[2, :])
+AXIS.plot3D(PROJECTEDVECTOR[0, :], PROJECTEDVECTOR[1, :], PROJECTEDVECTOR[2, :])
 plt.show()
